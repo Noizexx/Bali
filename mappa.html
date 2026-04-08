@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bali 2026 — Mappa Itinerario</title>
+<meta property="og:title" content="Bali 2026 — Mappa Itinerario"/>
+<meta property="og:description" content="Mappa interattiva del viaggio a Bali — Andrea, Matteo, Antonella & Brenda"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d2b2b; color: #eee; height: 100vh; display: flex; flex-direction: column; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #1A7A7A 0%, #0d4a4a 100%);
+    padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 3px solid #B8860B;
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 1.4rem; color: #fff; font-weight: 700; letter-spacing: 1px; }
+  header h1 span { color: #B8860B; }
+  header p { font-size: 0.8rem; color: #a0d4d4; margin-top: 2px; }
+  .header-info { text-align: right; font-size: 0.75rem; color: #a0d4d4; }
+  .header-link a { color: #B8860B; text-decoration: none; font-size: 0.75rem; font-weight: 600; border: 1px solid #B8860B44; padding: 4px 10px; border-radius: 20px; transition: all 0.2s; }
+  .header-link a:hover { background: #B8860B22; }
+
+  /* MAIN LAYOUT */
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 300px; min-width: 300px;
+    background: #0f2f2f;
+    overflow-y: auto;
+    border-right: 1px solid #1A7A7A;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-section { padding: 12px 14px; border-bottom: 1px solid #1a4a4a; }
+  .sidebar-section h3 {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;
+    color: #B8860B; margin-bottom: 8px;
+  }
+
+  /* FILTRI */
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filter-btn {
+    padding: 4px 10px; border-radius: 20px; border: none;
+    font-size: 0.72rem; cursor: pointer; transition: all 0.2s;
+    font-weight: 600;
+  }
+  .filter-btn.active { opacity: 1; }
+  .filter-btn:not(.active) { opacity: 0.35; }
+
+  /* GIORNI ITINERARIO */
+  .day-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; cursor: pointer; border-bottom: 1px solid #1a3a3a;
+    transition: background 0.15s; border-radius: 6px; padding: 7px 6px;
+  }
+  .day-item:hover { background: #1a4a4a; }
+  .day-badge {
+    min-width: 36px; height: 36px; border-radius: 50%;
+    background: #1A7A7A; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; line-height: 1.1; text-align: center;
+    flex-shrink: 0;
+  }
+  .day-info h4 { font-size: 0.78rem; color: #e0f0f0; font-weight: 600; line-height: 1.3; }
+  .day-info p { font-size: 0.68rem; color: #80a8a8; margin-top: 2px; }
+
+  /* LEGENDA */
+  .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.75rem; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.3); }
+
+  /* MAPPA */
+  #map { flex: 1; }
+
+  /* POPUP */
+  .leaflet-popup-content-wrapper {
+    background: #0f2f2f; border: 1px solid #1A7A7A;
+    border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .leaflet-popup-tip { background: #0f2f2f; }
+  .leaflet-popup-content { margin: 0; padding: 0; min-width: 220px; }
+  .popup-header {
+    background: #1A7A7A; padding: 10px 14px; border-radius: 9px 9px 0 0;
+  }
+  .popup-header h3 { color: #fff; font-size: 0.9rem; font-weight: 700; }
+  .popup-header .cat { color: #a0d4d4; font-size: 0.72rem; margin-top: 2px; }
+  .popup-body { padding: 10px 14px; }
+  .popup-body p { color: #c0d8d8; font-size: 0.76rem; line-height: 1.5; }
+  .popup-tip { background: #B8860B22; border-left: 3px solid #B8860B; padding: 6px 10px; margin-top: 8px; border-radius: 0 4px 4px 0; }
+  .popup-tip span { color: #B8860B; font-weight: 700; font-size: 0.72rem; }
+  .popup-tip p { color: #d4b870; font-size: 0.71rem; margin-top: 2px; }
+  .popup-status {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 0.68rem; font-weight: 700; margin-top: 8px;
+  }
+  .status-in { background: #1a4a1a; color: #6dcc6d; }
+  .status-opt { background: #3a2f00; color: #d4a820; }
+
+  /* ROUTE LINE */
+  .route-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; cursor: pointer; }
+  .route-toggle input { accent-color: #B8860B; }
+
+  /* SCROLLBAR */
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: #0a2020; }
+  .sidebar::-webkit-scrollbar-thumb { background: #1A7A7A; border-radius: 2px; }
+
+  /* MOBILE */
+  @media (max-width: 600px) {
+    .sidebar { display: none; }
+    header h1 { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🌴 BALI <span>2026</span></h1>
+    <p>Mappa Interattiva — Andrea, Matteo, Antonella & Brenda</p>
+  </div>
+  <div class="header-info">
+    <div>22 Aprile – 4 Maggio 2026</div>
+    <div>13 giorni · 4 persone</div>
+    <div class="header-link" style="margin-top:4px"><a href="https://bali.noizex.workers.dev" target="_blank">🌴 Piano completo →</a></div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- FILTRI CATEGORIA -->
+    <div class="sidebar-section">
+      <h3>Filtra per categoria</h3>
+      <div class="filters" id="filters"></div>
+    </div>
+
+    <!-- ITINERARIO GIORNI -->
+    <div class="sidebar-section">
+      <h3>Il vostro itinerario</h3>
+      <div id="days-list"></div>
+    </div>
+
+    <!-- LEGENDA -->
+    <div class="sidebar-section">
+      <h3>Legenda</h3>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#2E7D32"></div>
+        <span>Già nel vostro itinerario</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#B8860B"></div>
+        <span>Da valutare / opzionale</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#E53935; border-radius:2px; width:30px; height:6px;"></div>
+        <span>Percorso itinerario</span>
+      </div>
+    </div>
+
+    <!-- ROUTE TOGGLE -->
+    <div class="sidebar-section">
+      <label class="route-toggle">
+        <input type="checkbox" id="route-toggle" checked>
+        Mostra percorso itinerario
+      </label>
+    </div>
+
+    <!-- CONTATORI -->
+    <div class="sidebar-section">
+      <h3>Riepilogo luoghi</h3>
+      <div id="counter" style="font-size:0.78rem; line-height:1.8; color:#a0c8c8;"></div>
+    </div>
+  </div>
+
+  <!-- MAPPA -->
+  <div id="map"></div>
+</div>
+
+<script>
+// ─── DATI ───
+const categories = {
+  "Tempio":        { color: "#9C27B0", icon: "🛕" },
+  "Natura":        { color: "#4CAF50", icon: "🌿" },
+  "Spiaggia":      { color: "#03A9F4", icon: "🏖️" },
+  "Cultura":       { color: "#FF9800", icon: "🎭" },
+  "Trekking":      { color: "#8B4513", icon: "🥾" },
+  "Gastronomia":   { color: "#E91E63", icon: "🍽️" },
+  "Zona":          { color: "#1A7A7A", icon: "📍" },
+};
+
+const points = [
+  // ── GIA' NELL'ITINERARIO ──
+  {
+    name: "Kuta Beach",
+    cat: "Spiaggia", inItinerary: true,
+    lat: -8.7180, lng: 115.1686,
+    desc: "Prima zona di arrivo e ultima prima del rientro. Spiaggia lunga, surf, movida. Vicina all'aeroporto.",
+    tip: "Ideale per i primi/ultimi giorni. Tramonto spettacolare.",
+    day: "Giorni 1–2 e 11–13"
+  },
+  {
+    name: "Ubud — Centro città",
+    cat: "Cultura", inItinerary: true,
+    lat: -8.5069, lng: 115.2625,
+    desc: "Capitale culturale di Bali. Arte, danza tradizionale, risaie, mercato artigianale, cucina autentica.",
+    tip: "Dedicate almeno 3 notti. Serata con spettacolo di danza.",
+    day: "Giorni 3–7"
+  },
+  {
+    name: "Tegallalang Rice Terraces",
+    cat: "Natura", inItinerary: true,
+    lat: -8.4313, lng: 115.2793,
+    desc: "Risaie terrazzate Patrimonio UNESCO a nord di Ubud. Sistema di irrigazione 'subak'. Swing panoramici.",
+    tip: "Andate prima delle 8:00 per evitare la folla.",
+    day: "Giorni 3–7 (Ubud)"
+  },
+  {
+    name: "Tirta Empul",
+    cat: "Tempio", inItinerary: true,
+    lat: -8.4150, lng: 115.3147,
+    desc: "Tempio sacro con sorgenti purificatrici. I balinesi vengono qui per il rito del Melukat.",
+    tip: "Portate cambio d'abiti asciutti se volete fare il bagno sacro.",
+    day: "Giorni 3–7 (Ubud)"
+  },
+  {
+    name: "Monkey Forest Ubud",
+    cat: "Natura", inItinerary: true,
+    lat: -8.5194, lng: 115.2589,
+    desc: "Foresta sacra con 700 scimmie in libertà e tre templi del XIV secolo immersi nel verde.",
+    tip: "Non portate cibo o oggetti luccicanti — le scimmie li rubano.",
+    day: "Giorni 3–7 (Ubud)"
+  },
+  {
+    name: "Monte Batur — Alba vulcanica",
+    cat: "Trekking", inItinerary: true,
+    lat: -8.2424, lng: 115.3751,
+    desc: "Trekking notturno (partenza 02:30) per l'alba sul vulcano attivo. Vista su tre montagne al sorgere del sole. Colazione vulcanica con uovo al vapore.",
+    tip: "Portate giacca — in cima ~10°C. Guida certificata obbligatoria.",
+    day: "Giorno 5 (Kintamani)"
+  },
+  {
+    name: "Lago Batur — Piscina Termale",
+    cat: "Natura", inItinerary: true,
+    lat: -8.3000, lng: 115.4000,
+    desc: "Lago vulcanico ai piedi del Monte Batur. Dopo il trekking ci si rilassa in una piscina termale naturale.",
+    tip: "Asciugamani inclusi nella maggior parte delle piscine termali.",
+    day: "Giorno 5 (Kintamani)"
+  },
+  {
+    name: "Ulun Danu Beratan",
+    cat: "Tempio", inItinerary: true,
+    lat: -8.2756, lng: 115.1667,
+    desc: "Tempio iconico sulle rive del Lago Beratan. Sembra emergere dall'acqua. Dedicato alla dea delle acque.",
+    tip: "Bellissimo anche con la nebbia mattutina. Ingresso ~50.000 IDR.",
+    day: "Giorno 6 (Bedugul)"
+  },
+  {
+    name: "Nusa Penida — Kelingking Beach",
+    cat: "Spiaggia", inItinerary: true,
+    lat: -8.7699, lng: 115.4529,
+    desc: "La spiaggia più iconica di Bali vista dall'alto: forma a T-Rex, scogliera imponente, acqua smeraldo.",
+    tip: "La discesa è impegnativa (45 min). Vale il panorama dall'alto anche senza scendere.",
+    day: "Giorni 7–8 (Nusa Penida)"
+  },
+  {
+    name: "Nusa Penida — Crystal Bay",
+    cat: "Spiaggia", inItinerary: true,
+    lat: -8.7250, lng: 115.4333,
+    desc: "Spiaggia bianchissima, acque limpide. Snorkeling con pesci tropicali, barriere coralline e tartarughe.",
+    tip: "Noleggio snorkeling in spiaggia ~50.000 IDR. Correnti forti nel pomeriggio.",
+    day: "Giorni 7–8 (Nusa Penida)"
+  },
+  {
+    name: "Angel's Billabong & Broken Beach",
+    cat: "Spiaggia", inItinerary: true,
+    lat: -8.7364, lng: 115.4694,
+    desc: "Piscina naturale nella roccia vulcanica riempita dall'oceano + arco di roccia naturale che crea una baia circolare.",
+    tip: "Solo con mare calmo e bassa marea. Non tuffatevi con onde alte.",
+    day: "Giorni 7–8 (Nusa Penida)"
+  },
+  {
+    name: "Manta Point — Snorkeling/Diving",
+    cat: "Spiaggia", inItinerary: true,
+    lat: -8.7833, lng: 115.3667,
+    desc: "Il sito più famoso di Nusa Penida: si nuota con le mante giganti. Visibilità fino a 30 metri.",
+    tip: "Organizzate con tour operator locale. Non adatto a nuotatori inesperti senza guida.",
+    day: "Giorni 7–8 (Nusa Penida)"
+  },
+  {
+    name: "Pura Luhur Uluwatu",
+    cat: "Tempio", inItinerary: true,
+    lat: -8.8292, lng: 115.0850,
+    desc: "Uno dei sei templi sacri principali, a 70m sulla scogliera. Vista spettacolare sull'Oceano Indiano. Circondato da scimmie.",
+    tip: "Sarong obbligatorio. Occhiali e borse al sicuro dalle scimmie.",
+    day: "Giorni 9–10 (Uluwatu)"
+  },
+  {
+    name: "Kecak Dance al tramonto",
+    cat: "Cultura", inItinerary: true,
+    lat: -8.8295, lng: 115.0870,
+    desc: "La danza delle scimmie: coro di voci maschili racconta il Ramayana sulla scogliera al tramonto. Indimenticabile.",
+    tip: "Arrivate 30 min prima. Biglietti ~150.000 IDR (~9€). Spettacolo ore 18:00.",
+    day: "Giorni 9–10 (Uluwatu)"
+  },
+  {
+    name: "Padang Padang Beach",
+    cat: "Spiaggia", inItinerary: true,
+    lat: -8.8103, lng: 115.0900,
+    desc: "Piccola spiaggia nascosta tra le scogliere, sabbia bianchissima, acque calme. Resa famosa da 'Mangia Prega Ama'.",
+    tip: "Ingresso ~15.000 IDR. Mattina presto per evitare la folla.",
+    day: "Giorni 9–10 (Uluwatu)"
+  },
+  {
+    name: "Jimbaran Fish Market — Cena sul mare",
+    cat: "Gastronomia", inItinerary: true,
+    lat: -8.7879, lng: 115.1565,
+    desc: "Ristoranti sulla sabbia di Jimbaran che cucinano pesce fresco scelto dal banco. Tavoli sotto le stelle.",
+    tip: "Prezzi ~200.000–350.000 IDR pp. Meglio la sera verso le 18:30.",
+    day: "Giorni 9–10 (Uluwatu)"
+  },
+  {
+    name: "Warung Babi Guling Ibu Oka",
+    cat: "Gastronomia", inItinerary: true,
+    lat: -8.5060, lng: 115.2640,
+    desc: "Il più famoso Babi Guling di Ubud: maialino allo spit con spezie balinesi. Porzione ~30.000 IDR.",
+    tip: "Coda la mattina, vale l'attesa. Chiude quando finisce il maiale (spesso prima di pranzo).",
+    day: "Giorni 3–7 (Ubud)"
+  },
+
+  // ── DA VALUTARE ──
+  {
+    name: "Tanah Lot",
+    cat: "Tempio", inItinerary: false,
+    lat: -8.6213, lng: 114.9989,
+    desc: "Tempio simbolo di Bali su uno scoglio al largo. Tramonto tra i più famosi dell'isola.",
+    tip: "Arrivate verso le 17:30 per il tramonto perfetto.",
+    day: "Opzionale — Costa Ovest"
+  },
+  {
+    name: "Cerimonia Melukat",
+    cat: "Cultura", inItinerary: false,
+    lat: -8.4152, lng: 115.3149,
+    desc: "Rito balinese di purificazione spirituale con acqua sacra in un tempio nella natura. Guida di un sacerdote.",
+    tip: "Portate sarong e offerte floreali. Esperienza intima e trasformativa.",
+    day: "Da aggiungere — Ubud/Tampaksiring"
+  },
+  {
+    name: "Pura Besakih — Tempio Madre",
+    cat: "Tempio", inItinerary: false,
+    lat: -8.3742, lng: 115.4517,
+    desc: "Il complesso templare più sacro di Bali, con 80+ santuari sulle pendici del Monte Agung.",
+    tip: "Attenzione alle guide non certificate. Si abbina al villaggio di Kastala.",
+    day: "Da valutare — Bali Est"
+  },
+  {
+    name: "Cascate Banyumala",
+    cat: "Natura", inItinerary: false,
+    lat: -8.2383, lng: 115.1528,
+    desc: "Doppie cascate gemelle nella foresta di Munduk. Poco frequentate, acque cristalline.",
+    tip: "Portate costume. Sentiero scivoloso — scarpe da trekking.",
+    day: "Da valutare — Munduk/Nord"
+  },
+  {
+    name: "Lago Tamblingan",
+    cat: "Natura", inItinerary: false,
+    lat: -8.2617, lng: 115.1383,
+    desc: "Lago vulcanico incontaminato circondato da giungla primaria. Trekking e giro in barca tradizionale.",
+    tip: "Si abbina con le cascate Banyumala. Poco frequentato — autentico.",
+    day: "Da valutare — Munduk/Nord"
+  },
+  {
+    name: "Tenganan Pegringsingan",
+    cat: "Cultura", inItinerary: false,
+    lat: -8.4931, lng: 115.5414,
+    desc: "Uno dei villaggi più antichi di Bali, abitato dai Bali Aga. Tessuto Gringsing rarissimo.",
+    tip: "Comunità viva, non museo. Acquistare qualcosa supporta l'economia locale.",
+    day: "Da valutare — Bali Est"
+  },
+  {
+    name: "Virgin Beach (Pantai Pasir Putih)",
+    cat: "Spiaggia", inItinerary: false,
+    lat: -8.4831, lng: 115.5811,
+    desc: "La spiaggia più incontaminata del Bali Est. Sabbia bianca, acqua turchese, pochissimi turisti.",
+    tip: "Sentiero sterrato in scooter da Candidasa. Porta pranzo al sacco.",
+    day: "Da valutare — Candidasa"
+  },
+  {
+    name: "Candidasa",
+    cat: "Zona", inItinerary: false,
+    lat: -8.5071, lng: 115.5614,
+    desc: "Borgo marino tranquillo sulla costa est. Base ideale per Bali Est: Besakih, Tenganan, Virgin Beach.",
+    tip: "Sunset vista oceano dai ristoranti sul lungomare.",
+    day: "Da valutare — Bali Est"
+  },
+  {
+    name: "Goa Lawah — Tempio dei Pipistrelli",
+    cat: "Tempio", inItinerary: false,
+    lat: -8.5570, lng: 115.4630,
+    desc: "Santuario all'ingresso di una grotta abitata da migliaia di pipistrelli sacri. Unico nel suo genere.",
+    tip: "Sulla strada tra Klungkung e Candidasa — ottimo come sosta.",
+    day: "Da valutare — Klungkung"
+  },
+  {
+    name: "Pura Lempuyang — Gates of Heaven",
+    cat: "Tempio", inItinerary: false,
+    lat: -8.3890, lng: 115.6280,
+    desc: "Le porte di pietra con il Monte Agung sullo sfondo: uno degli scatti più iconici al mondo.",
+    tip: "Arrivate prima dell'alba. Trekking 30–45 min. Ignorare il 'riflesso' — è uno specchio finto.",
+    day: "Da valutare — Karangasem"
+  },
+  {
+    name: "Green School Bali",
+    cat: "Cultura", inItinerary: false,
+    lat: -8.5217, lng: 115.2236,
+    desc: "Campus scolastico internazionale in bambù nella foresta. Simbolo di sostenibilità e innovazione.",
+    tip: "Tour guidati disponibili su prenotazione. Ingresso a pagamento.",
+    day: "Da valutare — Ubud"
+  },
+  {
+    name: "Monte Batukaru",
+    cat: "Trekking", inItinerary: false,
+    lat: -8.3870, lng: 114.9180,
+    desc: "Seconda montagna di Bali, la meno visitata. Foresta pluviale, erbe medicinali. Escursione con famiglia locale.",
+    tip: "Trekking con guida-proprietario di casa locale. Pranzo con la moglie della guida — autentico.",
+    day: "Da valutare — Tabanan"
+  },
+  {
+    name: "Seminyak Beach Club",
+    cat: "Spiaggia", inItinerary: false,
+    lat: -8.6936, lng: 115.1607,
+    desc: "La zona chic di Bali: Ku De Ta, Potato Head, La Plancha. Aperitivi al tramonto, cucina raffinata.",
+    tip: "Prenotate i beach club con anticipo — specialmente al tramonto.",
+    day: "Da valutare — Seminyak"
+  },
+  {
+    name: "Canggu — Echo Beach",
+    cat: "Spiaggia", inItinerary: false,
+    lat: -8.6478, lng: 115.1385,
+    desc: "La zona trendy di Bali: surf, specialty coffee, campi di riso, ristoranti internazionali.",
+    tip: "Perfetta per un pomeriggio alternativo. Da Seminyak in 15 min in scooter.",
+    day: "Da valutare — Canggu"
+  },
+  {
+    name: "Pemuteran & Menjangan Island",
+    cat: "Natura", inItinerary: false,
+    lat: -8.1258, lng: 114.6519,
+    desc: "Nord-ovest: il miglior sito diving di Bali su Menjangan Island. Pareti coralline a 40m, tartarughe, mante.",
+    tip: "Lontano (3–4h da Ubud) ma straordinario per chi ama le immersioni.",
+    day: "Da valutare — Nord-Ovest (viaggio futuro)"
+  },
+  {
+    name: "Parco Nazionale Bali Barat",
+    cat: "Natura", inItinerary: false,
+    lat: -8.1500, lng: 114.5500,
+    desc: "L'unica area protetta di Bali. Foresta tropicale primaria, mangrovie. Habitat del Jalak Bali, uccello quasi estinto.",
+    tip: "Richiede almeno 2 notti in zona. Ideale per un secondo viaggio.",
+    day: "Da valutare — Nord-Ovest (viaggio futuro)"
+  },
+  {
+    name: "Sanur — Porto per Nusa Penida",
+    cat: "Zona", inItinerary: true,
+    lat: -8.7000, lng: 115.2631,
+    desc: "Base tranquilla per imbarcarsi verso Nusa Penida (45 min fast boat). Lungomare piacevole, alba sul mare.",
+    tip: "Fast boat per Nusa Penida dal porto di Sanur. Prenotate in anticipo.",
+    day: "Transito verso Nusa Penida"
+  },
+];
+
+// ─── PERCORSO ITINERARIO ───
+const routeCoords = [
+  [-8.7180, 115.1686],  // Kuta
+  [-8.5069, 115.2625],  // Ubud
+  [-8.4313, 115.2793],  // Tegallalang
+  [-8.4150, 115.3147],  // Tirta Empul
+  [-8.2756, 115.1667],  // Ulun Danu
+  [-8.2424, 115.3751],  // Batur
+  [-8.3000, 115.4000],  // Lago Batur
+  [-8.5069, 115.2625],  // Ritorno Ubud
+  [-8.7000, 115.2631],  // Sanur
+  [-8.7699, 115.4529],  // Kelingking
+  [-8.7250, 115.4333],  // Crystal Bay
+  [-8.7000, 115.2631],  // Sanur ritorno
+  [-8.8292, 115.0850],  // Uluwatu
+  [-8.7879, 115.1565],  // Jimbaran
+  [-8.7180, 115.1686],  // Kuta finale
+];
+
+// ─── MAPPA INIT ───
+const map = L.map('map', {
+  center: [-8.5, 115.2],
+  zoom: 10,
+  zoomControl: true,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO',
+  subdomains: 'abcd', maxZoom: 19,
+}).addTo(map);
+
+// ─── ROUTE ───
+let routeLayer = L.polyline(routeCoords, {
+  color: '#E53935', weight: 3, opacity: 0.8,
+  dashArray: '8, 8', lineJoin: 'round',
+}).addTo(map);
+
+document.getElementById('route-toggle').addEventListener('change', function() {
+  if (this.checked) map.addLayer(routeLayer);
+  else map.removeLayer(routeLayer);
+});
+
+// ─── MARKERS ───
+let markers = [];
+let activeFilters = new Set(Object.keys(categories));
+
+function createIcon(cat, inItinerary) {
+  const cfg = categories[cat] || { color: "#888", icon: "📍" };
+  const borderColor = inItinerary ? '#2E7D32' : '#B8860B';
+  const glowColor   = inItinerary ? 'rgba(46,125,50,0.4)' : 'rgba(184,134,11,0.4)';
+  const html = `
+    <div style="
+      width:36px; height:36px; border-radius:50%;
+      background:${cfg.color};
+      border:3px solid ${borderColor};
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; line-height:1;
+      box-shadow:0 0 10px ${glowColor}, 0 2px 6px rgba(0,0,0,0.5);
+      cursor:pointer;
+    ">${cfg.icon}</div>`;
+  return L.divIcon({ html, iconSize: [36,36], iconAnchor: [18,18], popupAnchor: [0,-20], className: '' });
+}
+
+function buildPopup(p) {
+  const statusHtml = p.inItinerary
+    ? `<span class="popup-status status-in">✓ Nel vostro itinerario</span>`
+    : `<span class="popup-status status-opt">◆ Da valutare</span>`;
+  const tipHtml = p.tip
+    ? `<div class="popup-tip"><span>💡 Consiglio:</span><p>${p.tip}</p></div>` : '';
+  return `
+    <div class="popup-header">
+      <h3>${p.name}</h3>
+      <div class="cat">${categories[p.cat]?.icon || ''} ${p.cat} · ${p.day}</div>
+    </div>
+    <div class="popup-body">
+      <p>${p.desc}</p>
+      ${tipHtml}
+      ${statusHtml}
+    </div>`;
+}
+
+function renderMarkers() {
+  markers.forEach(({ marker }) => map.removeLayer(marker));
+  markers = [];
+  points.forEach(p => {
+    if (!activeFilters.has(p.cat)) return;
+    const marker = L.marker([p.lat, p.lng], { icon: createIcon(p.cat, p.inItinerary) })
+      .bindPopup(buildPopup(p), { maxWidth: 280, minWidth: 240 })
+      .addTo(map);
+    markers.push({ marker, point: p });
+  });
+  updateCounter();
+}
+
+// ─── FILTRI ───
+const filtersEl = document.getElementById('filters');
+Object.entries(categories).forEach(([cat, cfg]) => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn active';
+  btn.style.background = cfg.color + '33';
+  btn.style.color = cfg.color;
+  btn.style.border = `1.5px solid ${cfg.color}`;
+  btn.innerHTML = `${cfg.icon} ${cat}`;
+  btn.addEventListener('click', () => {
+    if (activeFilters.has(cat)) {
+      activeFilters.delete(cat);
+      btn.classList.remove('active');
+    } else {
+      activeFilters.add(cat);
+      btn.classList.add('active');
+    }
+    renderMarkers();
+  });
+  filtersEl.appendChild(btn);
+});
+
+// ─── GIORNI ITINERARIO ───
+const itineraryDays = [
+  { days: "Gg 1–2", label: "Kuta — Arrivo", sub: "22–23 Aprile", lat: -8.7180, lng: 115.1686 },
+  { days: "Gg 3–7", label: "Ubud — Cultura e natura", sub: "24–28 Aprile", lat: -8.5069, lng: 115.2625 },
+  { days: "Gg 5",   label: "Monte Batur — Alba", sub: "26 Aprile", lat: -8.2424, lng: 115.3751 },
+  { days: "Gg 6",   label: "Bedugul — Ulun Danu", sub: "27 Aprile", lat: -8.2756, lng: 115.1667 },
+  { days: "Gg 7–8", label: "Nusa Penida", sub: "28–29 Aprile", lat: -8.7278, lng: 115.5444 },
+  { days: "Gg 9–10",label: "Uluwatu — Kecak & spiagge", sub: "30 Apr–1 Mag", lat: -8.8292, lng: 115.0850 },
+  { days: "Gg 10",  label: "Cena a Jimbaran", sub: "1 Maggio", lat: -8.7879, lng: 115.1565 },
+  { days: "Gg 11–13",label: "Kuta — Relax e rientro", sub: "2–4 Maggio", lat: -8.7180, lng: 115.1686 },
+];
+
+const daysList = document.getElementById('days-list');
+itineraryDays.forEach(d => {
+  const el = document.createElement('div');
+  el.className = 'day-item';
+  el.innerHTML = `
+    <div class="day-badge">${d.days}</div>
+    <div class="day-info">
+      <h4>${d.label}</h4>
+      <p>${d.sub}</p>
+    </div>`;
+  el.addEventListener('click', () => {
+    map.setView([d.lat, d.lng], 13, { animate: true });
+  });
+  daysList.appendChild(el);
+});
+
+// ─── COUNTER ───
+function updateCounter() {
+  const visible   = markers.length;
+  const inIt      = markers.filter(m => m.point.inItinerary).length;
+  const optional  = markers.filter(m => !m.point.inItinerary).length;
+  document.getElementById('counter').innerHTML = `
+    <b style="color:#6dcc6d">✓ Nel vostro itinerario:</b> ${inIt}<br>
+    <b style="color:#d4a820">◆ Da valutare:</b> ${optional}<br>
+    <b style="color:#a0c8c8">Totale visibili:</b> ${visible}
+  `;
+}
+
+// ─── START ───
+renderMarkers();
+</script>
+</body>
+</html>
