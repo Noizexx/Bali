@@ -111,30 +111,74 @@
   .sidebar::-webkit-scrollbar-track { background: #0a2020; }
   .sidebar::-webkit-scrollbar-thumb { background: #1A7A7A; border-radius: 2px; }
 
+  /* BACK BUTTON */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #B8860B; text-decoration: none; font-size: 0.78rem; font-weight: 600;
+    border: 1px solid #B8860B55; padding: 5px 12px; border-radius: 20px;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .back-btn:hover { background: #B8860B22; }
+
+  /* HAMBURGER */
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer;
+    padding: 6px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px;
+  }
+  .hamburger span { width: 22px; height: 2px; background: #fff; border-radius: 2px; transition: all 0.2s; }
+
+  /* MOBILE OVERLAY */
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 99; backdrop-filter: blur(2px);
+  }
+  .overlay.active { display: block; }
+
   /* MOBILE */
-  @media (max-width: 600px) {
-    .sidebar { display: none; }
-    header h1 { font-size: 1rem; }
+  @media (max-width: 700px) {
+    header { padding: 10px 14px; }
+    header h1 { font-size: 1.1rem; }
+    header p { display: none; }
+    .header-info { display: none; }
+    .hamburger { display: flex; }
+
+    .sidebar {
+      position: fixed; left: -100%; top: 0; bottom: 0;
+      z-index: 100; width: 85%; max-width: 320px;
+      transition: left 0.3s ease; box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+    }
+    .sidebar.open { left: 0; }
+    .main { flex-direction: column; }
+    #map { height: calc(100vh - 56px); flex: none; }
   }
 </style>
 </head>
 <body>
 
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
 <header>
-  <div>
-    <h1>🌴 BALI <span>2026</span></h1>
-    <p>Mappa Interattiva — Andrea, Matteo, Antonella & Brenda</p>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="hamburger" id="hamburger" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </div>
+    <div>
+      <h1>🌴 BALI <span>2026</span></h1>
+      <p>Mappa Interattiva — Andrea, Matteo, Antonella & Brenda</p>
+    </div>
   </div>
-  <div class="header-info">
-    <div>22 Aprile – 4 Maggio 2026</div>
-    <div>13 giorni · 4 persone</div>
-    <div class="header-link" style="margin-top:4px"><a href="https://bali.noizex.workers.dev" target="_blank">🌴 Piano completo →</a></div>
+  <div class="header-info" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+    <a href="index.html" class="back-btn">← Piano</a>
+    <div style="text-align:right">
+      <div>22 Apr – 4 Mag 2026</div>
+      <div style="color:#80a0a0">4 persone · 13 giorni</div>
+    </div>
   </div>
 </header>
 
 <div class="main">
   <!-- SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
 
     <!-- FILTRI CATEGORIA -->
     <div class="sidebar-section">
@@ -592,14 +636,14 @@ Object.entries(categories).forEach(([cat, cfg]) => {
 
 // ─── GIORNI ITINERARIO ───
 const itineraryDays = [
-  { days: "Gg 1–2", label: "Kuta — Arrivo", sub: "22–23 Aprile", lat: -8.7180, lng: 115.1686 },
-  { days: "Gg 3–7", label: "Ubud — Cultura e natura", sub: "24–28 Aprile", lat: -8.5069, lng: 115.2625 },
-  { days: "Gg 5",   label: "Monte Batur — Alba", sub: "26 Aprile", lat: -8.2424, lng: 115.3751 },
-  { days: "Gg 6",   label: "Bedugul — Ulun Danu", sub: "27 Aprile", lat: -8.2756, lng: 115.1667 },
-  { days: "Gg 7–8", label: "Nusa Penida", sub: "28–29 Aprile", lat: -8.7278, lng: 115.5444 },
-  { days: "Gg 9–10",label: "Uluwatu — Kecak & spiagge", sub: "30 Apr–1 Mag", lat: -8.8292, lng: 115.0850 },
-  { days: "Gg 10",  label: "Cena a Jimbaran", sub: "1 Maggio", lat: -8.7879, lng: 115.1565 },
-  { days: "Gg 11–13",label: "Kuta — Relax e rientro", sub: "2–4 Maggio", lat: -8.7180, lng: 115.1686 },
+  { days: "Gg 1–2", label: "Seminyak — Arrivo", sub: "22–23 Aprile", lat: -8.6936, lng: 115.1607 },
+  { days: "Gg 3–5", label: "Kintamani — Vulcano", sub: "24–26 Aprile · cottage", lat: -8.2424, lng: 115.3751 },
+  { days: "Gg 4",   label: "Alba Monte Batur", sub: "25 Aprile · sveglia 4:30", lat: -8.2424, lng: 115.3751 },
+  { days: "Gg 6–8", label: "Ubud — Cultura e natura", sub: "27–29 Aprile · da prenotare", lat: -8.5069, lng: 115.2625 },
+  { days: "Gg 9–10",label: "Nusa Penida", sub: "30 Apr–1 Mag", lat: -8.7278, lng: 115.5444 },
+  { days: "Gg 11–12",label: "Uluwatu — Kecak & spiagge", sub: "2–3 Maggio", lat: -8.8292, lng: 115.0850 },
+  { days: "Gg 12",  label: "Cena a Jimbaran", sub: "3 Maggio", lat: -8.7879, lng: 115.1565 },
+  { days: "Gg 13",  label: "Rientro — Aeroporto DPS", sub: "4 Maggio", lat: -8.7180, lng: 115.1686 },
 ];
 
 const daysList = document.getElementById('days-list');
@@ -614,20 +658,33 @@ itineraryDays.forEach(d => {
     </div>`;
   el.addEventListener('click', () => {
     map.setView([d.lat, d.lng], 13, { animate: true });
+    if (window.innerWidth <= 700) closeSidebar();
   });
   daysList.appendChild(el);
 });
 
 // ─── COUNTER ───
 function updateCounter() {
-  const visible   = markers.length;
-  const inIt      = markers.filter(m => m.point.inItinerary).length;
-  const optional  = markers.filter(m => !m.point.inItinerary).length;
+  const visible  = markers.length;
+  const inIt     = markers.filter(m => m.point.inItinerary).length;
+  const optional = markers.filter(m => !m.point.inItinerary).length;
   document.getElementById('counter').innerHTML = `
     <b style="color:#6dcc6d">✓ Nel vostro itinerario:</b> ${inIt}<br>
     <b style="color:#d4a820">◆ Da valutare:</b> ${optional}<br>
     <b style="color:#a0c8c8">Totale visibili:</b> ${visible}
   `;
+}
+
+// ─── MOBILE SIDEBAR ───
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('active');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
 }
 
 // ─── START ───
