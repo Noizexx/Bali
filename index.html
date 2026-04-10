@@ -82,6 +82,19 @@ body{background:var(--sand);color:var(--ink);font-family:'DM Sans',sans-serif;fo
 .find-card p{font-size:12px;color:var(--ink2);line-height:1.5}
 footer{background:var(--deep);padding:26px;text-align:center}
 footer p{font-size:10px;color:rgba(245,237,224,.18);letter-spacing:.12em}
+.flight-row{display:grid;grid-template-columns:64px 1fr auto;gap:0 12px;padding:8px 0;border-bottom:1px solid rgba(245,237,224,.07);align-items:baseline}
+.flight-row:last-child{border-bottom:none;padding-bottom:0}
+.fd{font-size:10px;font-weight:500;letter-spacing:.04em;color:var(--gold)}
+.fn{font-size:12.5px;color:rgba(245,237,224,.65);line-height:1.5}
+.fn strong{color:rgba(245,237,224,.9);font-weight:500}
+.ft{font-size:11px;color:rgba(245,237,224,.4);white-space:nowrap;padding-left:6px}
+.task-list{display:flex;flex-direction:column}
+.task-row{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid rgba(45,31,14,.07)}
+.task-row:last-child{border-bottom:none}
+.task-icon{font-size:15px;flex-shrink:0;line-height:1.35}
+.task-body .tn{font-size:13px;font-weight:500;color:var(--ink);line-height:1.4}
+.task-body .td{font-size:12px;color:var(--ink2);margin-top:2px;line-height:1.55}
+.task-done .tn{color:var(--sage)}
 @media(max-width:620px){.log-grid,.book-grid,.find-grid,.planb-grid{grid-template-columns:1fr}.hero h1{font-size:50px}.dest-head{flex-direction:column;align-items:flex-start}.dest-meta{text-align:left}.day-block{grid-template-columns:48px 1fr;gap:0 10px}.blist li{grid-template-columns:40px 1fr}}
 </style>
 </head>
@@ -183,12 +196,12 @@ footer p{font-size:10px;color:rgba(245,237,224,.18);letter-spacing:.12em}
   <div class="day-block">
     <div><div class="day-dow">Mer</div><div class="day-date">22 apr</div></div>
     <div class="day-body">
-      <div class="day-title">Arrivo & prima sera</div>
+      <div class="day-title">Arrivo notturno · prima sera</div>
       <ul class="blist">
-        <li><span class="t dim">–</span><span class="c">Transfer aeroporto → villa <small>15 min · ~IDR 150.000</small></span></li>
-        <li><span class="t">pom.</span><span class="c">Piscina, prima Bintang ghiacciata, decompressione totale</span></li>
-        <li><span class="t">18:00</span><span class="c">Tramonto sulla spiaggia di Seminyak</span></li>
-        <li><span class="t">19:30</span><span class="c">Cena: <em>Warung Nia</em>, Kayu Aya Square — primo nasi campur autentico</span></li>
+        <li><span class="t">20:00</span><span class="c">Atterraggio DPS · <em>SV856</em> da Jeddah <small>dopo ~19h di viaggio totale — ce la siamo guadagnata</small></span></li>
+        <li><span class="t">20:30</span><span class="c">Transfer aeroporto → villa Seminyak <small>~15 min · IDR 150.000</small></span></li>
+        <li><span class="t">21:00</span><span class="c">Check-in villa · prima Bintang ghiacciata · decompressione totale</span></li>
+        <li><span class="t">21:30</span><span class="c">Cena leggera in villa o warung vicino — niente stress il primo giorno</span></li>
       </ul>
     </div>
   </div>
@@ -416,8 +429,67 @@ footer p{font-size:10px;color:rgba(245,237,224,.18);letter-spacing:.12em}
       <div class="day-title">Rientro — Aeroporto Ngurah Rai</div>
       <ul class="blist">
         <li><span class="t">matt.</span><span class="c">Colazione in villa · ultimi momenti in piscina</span></li>
-        <li><span class="t">–</span><span class="c">Transfer villa → aeroporto DPS <small>45–60 min · calcolare 90 con traffico · partire 3h prima del volo</small></span></li>
+        <li><span class="t">pom.</span><span class="c">Giornata libera · ultimi souvenir · godersi le ultime ore</span></li>
+        <li><span class="t">18:45</span><span class="c">Driver villa → aeroporto DPS <small>~45 min · con traffico 60–75 min · partire con anticipo</small></span></li>
+        <li><span class="t">21:55</span><span class="c"><em>SV857</em> Bali (DPS) → Jeddah <small>arrivo Jeddah 06:20 del 5 mag · poi SV211 09:45 → Milano MXP 14:05</small></span></li>
       </ul>
+    </div>
+  </div>
+</div></div>
+
+<!-- VOLI -->
+<div class="dark"><div class="wrap">
+  <div class="sec-label">Voli</div>
+  <div class="log-grid">
+    <div class="log-card">
+      <h3>✈ Andata · 20 – 22 Aprile</h3>
+      <div style="margin-top:8px">
+        <div class="flight-row">
+          <span class="fd">Lun 20 apr</span>
+          <span class="fn"><strong>FR1091</strong> · Ryanair · Alghero (AHO) → Milano MXP</span>
+          <span class="ft">16:30 → 17:45</span>
+        </div>
+        <div class="flight-row">
+          <span class="fd">Mar 21 apr</span>
+          <span class="fn"><strong>SV210</strong> · Saudia · Milano MXP → Jeddah (JED)</span>
+          <span class="ft">16:05 → 22:15</span>
+        </div>
+        <div class="flight-row">
+          <span class="fd">Mer 22 apr</span>
+          <span class="fn"><strong>SV856</strong> · Saudia · Jeddah → Bali (DPS) <small style="color:rgba(245,237,224,.28)">· scalo Singapore</small></span>
+          <span class="ft">01:00 → 20:00</span>
+        </div>
+      </div>
+    </div>
+    <div class="log-card">
+      <h3>✈ Ritorno · 4 – 6 Maggio</h3>
+      <div style="margin-top:8px">
+        <div class="flight-row">
+          <span class="fd">Lun 4 mag</span>
+          <span class="fn"><strong>SV857</strong> · Saudia · Bali (DPS) → Jeddah (JED)</span>
+          <span class="ft">21:55 → 06:20<sup style="font-size:9px">+1</sup></span>
+        </div>
+        <div class="flight-row">
+          <span class="fd">Mar 5 mag</span>
+          <span class="fn"><strong>SV211</strong> · Saudia · Jeddah → Milano MXP <small style="color:rgba(245,237,224,.28)">· notte a Milano</small></span>
+          <span class="ft">09:45 → 14:05</span>
+        </div>
+        <div class="flight-row">
+          <span class="fd">Mer 6 mag</span>
+          <span class="fn"><strong>FR1090</strong> · Ryanair · Milano MXP → Alghero (AHO)</span>
+          <span class="ft">15:05 → 16:25</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="planb-grid" style="margin-top:2px">
+    <div class="planb-card">
+      <h3>Saudia · Rif. 7AXDY5-071033133405</h3>
+      <p>SV210 + SV856 andata · SV857 + SV211 ritorno · Tariffa Guest Basic · 1 bagaglio incluso/pers · emesso 27 gen 2026 (FCO).</p>
+    </div>
+    <div class="planb-card">
+      <h3>Ryanair · Rif. TR76UL</h3>
+      <p>FR1091 Alghero → MXP (20 apr) · FR1090 MXP → Alghero (6 mag) · verificare bagaglio a mano consentito.</p>
     </div>
   </div>
 </div></div>
@@ -514,7 +586,7 @@ footer p{font-size:10px;color:rgba(245,237,224,.18);letter-spacing:.12em}
     </div>
     <div class="planb-card">
       <h3>Assicurazione</h3>
-      <p>Assicurazione viaggio consigliata (SafetyWing). Ospedale: BIMC Kuta — accetta assicurazioni internazionali.</p>
+      <p>Heymondo Top ✓ già attiva per tutti e 4. Ospedale: BIMC Kuta — accetta assicurazioni internazionali.</p>
     </div>
   </div>
 </div></div>
@@ -552,6 +624,46 @@ footer p{font-size:10px;color:rgba(245,237,224,.18);letter-spacing:.12em}
       <span class="pri">📅 Consigliato</span>
       <h4>Snorkeling mante — 1 mag</h4>
       <p>Discover Nusa Penida, max 10 persone. Prenotare appena arrivati il 30.</p>
+    </div>
+  </div>
+
+  <div style="height:36px"></div>
+  <div class="sec-label">Da fare prima di partire</div>
+  <div class="task-list">
+    <div class="task-row task-done">
+      <span class="task-icon">✅</span>
+      <div class="task-body">
+        <div class="tn">Assicurazione Heymondo Top</div>
+        <div class="td">Attiva per tutti e 4 · polizza già emessa · copertura annullamento viaggio inclusa</div>
+      </div>
+    </div>
+    <div class="task-row task-done">
+      <span class="task-icon">✅</span>
+      <div class="task-body">
+        <div class="tn">Patente Internazionale</div>
+        <div class="td">Ritirata e pronta per la partenza</div>
+      </div>
+    </div>
+    <div class="task-row">
+      <span class="task-icon">❌</span>
+      <div class="task-body">
+        <div class="tn">E-Visa Indonesia (eVoA) — DA FARE</div>
+        <div class="td">evisa.imigrasi.go.id · ~$35/pers · ×4 = ~$140 · documenti: passaporto + foto + biglietto uscita · 1–3 gg lavorativi</div>
+      </div>
+    </div>
+    <div class="task-row">
+      <span class="task-icon">❌</span>
+      <div class="task-body">
+        <div class="tn">Tassa turistica Bali — DA FARE</div>
+        <div class="td">IDR 150.000/pers (~9€) · separata dal visto · si paga online su lovebali.com o all'ingresso aeroporto</div>
+      </div>
+    </div>
+    <div class="task-row">
+      <span class="task-icon">⚠️</span>
+      <div class="task-body">
+        <div class="tn">Transit visa Jeddah — verificare</div>
+        <div class="td">Scalo andata 2h45 · scalo ritorno 3h25 · di norma non richiesto se si rimane airside · controllare su saudia.com</div>
+      </div>
     </div>
   </div>
 
